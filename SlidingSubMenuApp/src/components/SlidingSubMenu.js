@@ -31,13 +31,14 @@ const SlidingSubMenu = () => {
 
   const filterByType = (type) => {
     if (type === "") {
-      setFilteredData(filteredData);
+      setFilteredData(jsonData);
     } else {
-      const filtered = filteredData.filter((item) => item.type === type);
+      const filtered = jsonData.filter((item) => item.type === type);
       setFilteredData(filtered);
     }
+    setSubFilter(type);
   };
-  
+
   const slideInSubMenu = () => {
     Animated.timing(sliderAnimation, {
       toValue: 1,
@@ -107,7 +108,7 @@ const SlidingSubMenu = () => {
                     styles.subMenuItem,
                     subFilter === "volleyball" && styles.selectedSubMenuItem,
                   ]}
-                  onPress={() =>  filterByType("volleyball")}
+                  onPress={() =>filterByType("volleyball")}
                 >
                   <Icon name="volleyball-ball" size={20} color="gray" />
                   <Text style={styles.subMenuText}>Volleyball</Text>
