@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Animated,
+  StyleSheet,
+} from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { jsonData } from "../utils/content";
 
@@ -7,6 +13,7 @@ const SlidingSubMenu = () => {
   const [filteredData, setFilteredData] = useState(jsonData);
   const [activeFilter, setActiveFilter] = useState("all");
   const [subFilter, setSubFilter] = useState("");
+  const [sliderAnimation] = useState(new Animated.Value(0));
 
   const handleFilter = (filter) => {
     setActiveFilter(filter);
@@ -19,15 +26,43 @@ const SlidingSubMenu = () => {
     }
 
     setSubFilter("");
+    slideOutSubMenu();
   };
 
   const filterByType = (type) => {
     if (type === "") {
-      setFilteredData(jsonData);
+      setFilteredData(filteredData);
     } else {
-      const filtered = jsonData.filter((item) => item.type === type);
+      const filtered = filteredData.filter((item) => item.type === type);
       setFilteredData(filtered);
     }
+  };
+  
+  const slideInSubMenu = () => {
+    Animated.timing(sliderAnimation, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const slideOutSubMenu = () => {
+    Animated.timing(sliderAnimation, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const animatedStyles = {
+    transform: [
+      {
+        translateX: sliderAnimation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [300, 0],
+        }),
+      },
+    ],
   };
 
   return (
@@ -46,29 +81,35 @@ const SlidingSubMenu = () => {
           </View>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => handleFilter("now")}
+          onPress={() => {
+            handleFilter("now");
+            slideInSubMenu();
+          }}
           style={[
             styles.filterButton,
             activeFilter === "now" && styles.activeFilterButton,
           ]}
         >
-          <View style={styles.navbarItems}>
-            <Icon
-              name="hand-point-up"
-              size={30}
-              color="red"
-              style={{ transform: [{ rotate: "-45deg" }] }}
-            />
-            <Text style={styles.filterButtonNow}>Canlı</Text>
+          <View style={styles.menuIcons}>
+            <View style={styles.navbarItems}>
+              <Icon
+                name="hand-point-up"
+                size={30}
+                color="red"
+                style={{ transform: [{ rotate: "-45deg" }] }}
+              />
+              <Text style={styles.filterButtonNow}>Canlı</Text>
+            </View>
             {activeFilter === "now" && (
-              <View style={styles.subMenu}>
+              <Animated.View style={[styles.subMenu, animatedStyles]}>
                 <TouchableOpacity
                   style={[
                     styles.subMenuItem,
                     subFilter === "volleyball" && styles.selectedSubMenuItem,
                   ]}
-                  onPress={() => filterByType("volleyball")}
+                  onPress={() =>  filterByType("volleyball")}
                 >
+                  <Icon name="volleyball-ball" size={20} color="gray" />
                   <Text style={styles.subMenuText}>Volleyball</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -78,6 +119,7 @@ const SlidingSubMenu = () => {
                   ]}
                   onPress={() => filterByType("mma")}
                 >
+                  <Icon name="hand-rock" size={20} color="red" solid/>
                   <Text style={styles.subMenuText}>MMA</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -87,6 +129,7 @@ const SlidingSubMenu = () => {
                   ]}
                   onPress={() => filterByType("handball")}
                 >
+                  <Icon name="baseball-ball" size={20} color="gray" />
                   <Text style={styles.subMenuText}>Handball</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -96,29 +139,45 @@ const SlidingSubMenu = () => {
                   ]}
                   onPress={() => filterByType("ice hockey")}
                 >
+                  <Icon name="skating" size={20} color="gray"/>
                   <Text style={styles.subMenuText}>Ice Hockey</Text>
                 </TouchableOpacity>
-              </View>
+                <TouchableOpacity
+                  style={[
+                    styles.subMenuItem,
+                    subFilter === "long term" && styles.selectedSubMenuItem,
+                  ]}
+                  onPress={() => filterByType("long term")}
+                >
+                  <Icon name="stopwatch" size={20} color="gray"/>
+                  <Text style={styles.subMenuText}>Uzun Vadeli</Text>
+                </TouchableOpacity>
+              </Animated.View>
             )}
           </View>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => handleFilter("before")}
+          onPress={() => {
+            handleFilter("before");
+            slideInSubMenu();
+          }}
           style={[
             styles.filterButton,
             activeFilter === "before" && styles.activeFilterButton,
           ]}
         >
-          <View style={styles.navbarItems}>
-            <Icon
-              name="hand-pointer"
-              size={30}
-              color="green"
-              style={{ transform: [{ rotate: "-45deg" }] }}
-            />
-            <Text style={styles.filterButtonBefore}>MaçÖnü</Text>
+          <View style={styles.menuIcons}>
+            <View style={styles.navbarItems}>
+              <Icon
+                name="hand-pointer"
+                size={30}
+                color="green"
+                style={{ transform: [{ rotate: "-45deg" }] }}
+              />
+              <Text style={styles.filterButtonBefore}>MaçÖnü</Text>
+            </View>
             {activeFilter === "before" && (
-              <View style={styles.subMenu}>
+              <Animated.View style={[styles.subMenu, animatedStyles]}>
                 <TouchableOpacity
                   style={[
                     styles.subMenuItem,
@@ -126,6 +185,7 @@ const SlidingSubMenu = () => {
                   ]}
                   onPress={() => filterByType("volleyball")}
                 >
+                  <Icon name="volleyball-ball" size={20} color="gray" />
                   <Text style={styles.subMenuText}>Volleyball</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -135,6 +195,7 @@ const SlidingSubMenu = () => {
                   ]}
                   onPress={() => filterByType("mma")}
                 >
+                  <Icon name="hand-rock" size={20} color="red" solid/>
                   <Text style={styles.subMenuText}>MMA</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -144,6 +205,7 @@ const SlidingSubMenu = () => {
                   ]}
                   onPress={() => filterByType("handball")}
                 >
+                  <Icon name="baseball-ball" size={20} color="gray" />
                   <Text style={styles.subMenuText}>Handball</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -153,9 +215,20 @@ const SlidingSubMenu = () => {
                   ]}
                   onPress={() => filterByType("ice hockey")}
                 >
+                  <Icon name="skating" size={20} color="gray"/>
                   <Text style={styles.subMenuText}>Ice Hockey</Text>
                 </TouchableOpacity>
-              </View>
+                <TouchableOpacity
+                  style={[
+                    styles.subMenuItem,
+                    subFilter === "long term" && styles.selectedSubMenuItem,
+                  ]}
+                  onPress={() => filterByType("long term")}
+                >
+                  <Icon name="stopwatch" size={20} color="gray"/>
+                  <Text style={styles.subMenuText}>Uzun Vadeli</Text>
+                </TouchableOpacity>
+              </Animated.View>
             )}
           </View>
         </TouchableOpacity>
@@ -172,7 +245,7 @@ const SlidingSubMenu = () => {
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   filterContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -181,7 +254,7 @@ const styles = {
     backgroundColor: "#394867",
   },
   filterButton: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     paddingVertical: 5,
     borderRadius: 5,
     marginHorizontal: 5,
@@ -216,6 +289,28 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
   },
-};
+  menuIcons: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  subMenu: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  subMenuItem: {
+    paddingHorizontal: 6,
+    borderRadius: 5,
+    backgroundColor: "#EDEFF1",
+    marginRight: 5,
+  },
+  selectedSubMenuItem: {
+    backgroundColor: "#F1F6F9",
+  },
+  subMenuText: {
+    fontSize: 8,
+    fontWeight: "bold",
+  },
+});
 
 export default SlidingSubMenu;
