@@ -1,127 +1,221 @@
 import React, { useState } from "react";
-import { View, TouchableOpacity, Animated } from "react-native";
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { View, Text, TouchableOpacity } from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome5";
+import { jsonData } from "../utils/content";
 
 const SlidingSubMenu = () => {
-  const [activeMenuItem, setActiveMenuItem] = useState(null);
-  const [subMenuExpanded, setSubMenuExpanded] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const scaleValue = new Animated.Value(1);
+  const [filteredData, setFilteredData] = useState(jsonData);
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [subFilter, setSubFilter] = useState("");
 
-  const menuItems = [
-    {
-      id: 1,
-      label: "Bültenim",
-      subMenuItems: [""],
-    },
-    {
-      id: 2,
-      label: "Canlı",
-      subMenuItems: ["Voleybol", "Buz Hokeyi", "Hentbol", "Uzun Vadeli", "MMA"],
-    },
-    {
-      id: 3,
-      label: "MaçÖnü",
-      subMenuItems: ["Voleybol", "Buz Hokeyi", "Hentbol", "Uzun Vadeli", "MMA"],
-    },
-  ];
+  const handleFilter = (filter) => {
+    setActiveFilter(filter);
 
-  const handleMenuItemPress = (index) => {
-    setActiveMenuItem(index);
-    setSubMenuExpanded(!subMenuExpanded);
-    setExpanded(!expanded);
-    Animated.timing(scaleValue, {
-      toValue: expanded ? 1 : 1.2,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
+    if (filter === "all") {
+      setFilteredData(jsonData);
+    } else {
+      const filtered = jsonData.filter((item) => item.time === filter);
+      setFilteredData(filtered);
+    }
+
+    setSubFilter("");
   };
 
-  const handleSubMenuIconPress = (menuItem) => {
-    console.log("Seçilen alt menü öğesi:", menuItem);
+  const filterByType = (type) => {
+    if (type === "") {
+      setFilteredData(jsonData);
+    } else {
+      const filtered = jsonData.filter((item) => item.type === type);
+      setFilteredData(filtered);
+    }
   };
 
   return (
     <View>
-      <View style={styles.menuContainer}>
-        {menuItems.map((item, index) => (
-          <View>
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => handleMenuItemPress(index)}
-              style={[
-                styles.menuItem,
-                activeMenuItem === index && styles.activeMenuItem,
-              ]}
-            >
-              <Animated.Text
-                style={[
-                  styles.menuItemLabel,
-                  { transform: [
-                    { scale: scaleValue },
-                    { rotate: '270deg' }, // Metni 180 derece döndürüyoruz
-                  ], },
-                ]}
-              >
-                {item.label}
-                {subMenuExpanded && index===activeMenuItem &&(
-                  <View style={styles.subMenuContainer}> 
-                    {item.subMenuItems.map((subItem, index) => (
-                    <TouchableOpacity key={index} style={styles.subMenuItem}>
-                      <Animated.Text style={styles.subMenuItemLabel}>{subItem}</Animated.Text>
-                    </TouchableOpacity>
-                  ))}
-                  </View>
-                )}
-              </Animated.Text>
-            </TouchableOpacity>
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          onPress={() => handleFilter("all")}
+          style={[
+            styles.filterButton,
+            activeFilter === "all" && styles.activeFilterButton,
+          ]}
+        >
+          <View style={styles.navbarItems}>
+            <Icon name="star" size={30} color="#FFA41B" solid />
+            <Text style={styles.filterButtonAll}>Bültenim</Text>
           </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleFilter("now")}
+          style={[
+            styles.filterButton,
+            activeFilter === "now" && styles.activeFilterButton,
+          ]}
+        >
+          <View style={styles.navbarItems}>
+            <Icon
+              name="hand-point-up"
+              size={30}
+              color="red"
+              style={{ transform: [{ rotate: "-45deg" }] }}
+            />
+            <Text style={styles.filterButtonNow}>Canlı</Text>
+            {activeFilter === "now" && (
+              <View style={styles.subMenu}>
+                <TouchableOpacity
+                  style={[
+                    styles.subMenuItem,
+                    subFilter === "volleyball" && styles.selectedSubMenuItem,
+                  ]}
+                  onPress={() => filterByType("volleyball")}
+                >
+                  <Text style={styles.subMenuText}>Volleyball</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.subMenuItem,
+                    subFilter === "mma" && styles.selectedSubMenuItem,
+                  ]}
+                  onPress={() => filterByType("mma")}
+                >
+                  <Text style={styles.subMenuText}>MMA</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.subMenuItem,
+                    subFilter === "handball" && styles.selectedSubMenuItem,
+                  ]}
+                  onPress={() => filterByType("handball")}
+                >
+                  <Text style={styles.subMenuText}>Handball</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.subMenuItem,
+                    subFilter === "ice hockey" && styles.selectedSubMenuItem,
+                  ]}
+                  onPress={() => filterByType("ice hockey")}
+                >
+                  <Text style={styles.subMenuText}>Ice Hockey</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleFilter("before")}
+          style={[
+            styles.filterButton,
+            activeFilter === "before" && styles.activeFilterButton,
+          ]}
+        >
+          <View style={styles.navbarItems}>
+            <Icon
+              name="hand-pointer"
+              size={30}
+              color="green"
+              style={{ transform: [{ rotate: "-45deg" }] }}
+            />
+            <Text style={styles.filterButtonBefore}>MaçÖnü</Text>
+            {activeFilter === "before" && (
+              <View style={styles.subMenu}>
+                <TouchableOpacity
+                  style={[
+                    styles.subMenuItem,
+                    subFilter === "volleyball" && styles.selectedSubMenuItem,
+                  ]}
+                  onPress={() => filterByType("volleyball")}
+                >
+                  <Text style={styles.subMenuText}>Volleyball</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.subMenuItem,
+                    subFilter === "mma" && styles.selectedSubMenuItem,
+                  ]}
+                  onPress={() => filterByType("mma")}
+                >
+                  <Text style={styles.subMenuText}>MMA</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.subMenuItem,
+                    subFilter === "handball" && styles.selectedSubMenuItem,
+                  ]}
+                  onPress={() => filterByType("handball")}
+                >
+                  <Text style={styles.subMenuText}>Handball</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.subMenuItem,
+                    subFilter === "ice hockey" && styles.selectedSubMenuItem,
+                  ]}
+                  onPress={() => filterByType("ice hockey")}
+                >
+                  <Text style={styles.subMenuText}>Ice Hockey</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.dataContainer}>
+        {filteredData.map((item) => (
+          <Text key={item.id} style={styles.dataItem}>
+            Maç: {item.id}, Zaman: {item.time}, Türü: {item.type}
+          </Text>
         ))}
       </View>
     </View>
   );
 };
 
-export default SlidingSubMenu;
-
 const styles = {
-  menuContainer: {
-    marginTop: 20,
+  filterContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    height: 60,
-    backgroundColor: "#f1f1f1",
-    width:"100%",
-    justifyContent:"space-between",
-  },
-  menuItem: {
-    flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    marginTop: 20,
+    justifyContent: "space-between",
+    backgroundColor: "#394867",
   },
-  activeMenuItem: {
-    backgroundColor: "#ccc",
-    
+  filterButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+    marginHorizontal: 5,
   },
-  menuItemLabel: {
+  activeFilterButton: {
+    backgroundColor: "#F1F6F9",
+  },
+  filterButtonAll: {
     fontSize: 10,
     fontWeight: "bold",
+    color: "#FFA41B",
   },
-  activeMenuItemLabel: {
-    color: "white",
- 
-  },
-  subMenuContainer: {
-    display: "flex",
-    flexDirection: "row",
-  },
-  subMenuItem: {
-    border: "1px solid aqua",
-    margin:2,
-  },
-  subMenuItemLabel: {
+  filterButtonNow: {
     fontSize: 10,
-    color: "#333",
-    backgroundColor:"#ccc"
+    fontWeight: "bold",
+    color: "red",
+  },
+  filterButtonBefore: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "green",
+  },
+  dataContainer: {
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  dataItem: {
+    marginBottom: 10,
+  },
+  navbarItems: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 };
+
+export default SlidingSubMenu;
