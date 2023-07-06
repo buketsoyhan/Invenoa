@@ -16,40 +16,40 @@ const SlidingSubMenu = () => {
   const [sliderAnimation] = useState(new Animated.Value(0));
 
   const handleFilter = (filter) => {
-    setActiveFilter(filter);
-
-    if (filter === "all") {
-      setFilteredData(jsonData);
+    if (filter === activeFilter) {
+      setSubFilter("");
     } else {
-      const filtered = jsonData.filter((item) => item.time === filter);
-      setFilteredData(filtered);
+      setActiveFilter(filter);
+      if (filter === "all") {
+        setFilteredData(jsonData);
+      } else {
+        const filtered = jsonData.filter((item) => item.time === filter);
+        setFilteredData(filtered);
+      }
     }
-
-    setSubFilter("");
-    slideOutSubMenu();
   };
 
   const filterByType = (type) => {
+    setSubFilter(type); 
+  
     if (type === "") {
-      setFilteredData(jsonData);
+      if (activeFilter === "all") {
+        setFilteredData(jsonData);
+      } else {
+        const filtered = jsonData.filter((item) => item.time === activeFilter);
+        setFilteredData(filtered);
+      }
     } else {
-      const filtered = jsonData.filter((item) => item.type === type);
+      const filtered = jsonData.filter(
+        (item) => item.time === activeFilter && item.type === type
+      );
       setFilteredData(filtered);
     }
-    setSubFilter(type);
   };
 
   const slideInSubMenu = () => {
     Animated.timing(sliderAnimation, {
       toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const slideOutSubMenu = () => {
-    Animated.timing(sliderAnimation, {
-      toValue: 0,
       duration: 300,
       useNativeDriver: true,
     }).start();
